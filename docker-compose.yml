@@ -1,0 +1,21 @@
+app:
+  build: .
+  container_name: app
+  hostname: app
+  ports:
+    - "8000:80"
+  volumes:
+    - .:/code
+    - ./docker/nginx/app.config:/etc/nginx/sites-enabled/default
+  links:
+    - postgres
+postgres:
+  image: postgres:9.4
+  ports:
+    - ":5432"
+  container_name: postgres
+  hostname: postgres
+  # POSTGRES_USER is user name AND base name
+  environment:
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=postgres

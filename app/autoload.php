@@ -8,7 +8,7 @@
  */
 spl_autoload_register(function ($class) {
     $prefix = 'Forestry\\';
-    $baseDir = realpath(__DIR__ . '/../src/');
+    $baseDir = __DIR__ . '/../src/';
 
     // check class prefix
     $len = strlen($prefix);
@@ -21,7 +21,7 @@ spl_autoload_register(function ($class) {
     $relativeClass = substr($class, $len);
 
     // replace class root namespace with base directory path
-    $file = $baseDir . str_replace('\\', '/', $relativeClass) . '.php';
+    $file = realpath($baseDir . str_replace('\\', '/', $relativeClass) . '.php');
 
     // load file
     if (file_exists($file)) {
