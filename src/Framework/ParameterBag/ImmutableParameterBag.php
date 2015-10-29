@@ -5,7 +5,7 @@ use Forestry\Framework\ParameterBag\Exception\ChangesNotAllowedException;
 
 /**
  * Parameter bag which members can only be set via constructor
- * No director changes to members permitted
+ * No direct changes to members allowed
  */
 class ImmutableParameterBag extends ParameterBag
 {
