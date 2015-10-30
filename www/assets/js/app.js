@@ -23,15 +23,14 @@ $(function () {
         showLoader();
 
         $.post('/node', {'label': label, 'parent_id': parentId})
-            .finish(function () {
-                hideLoader();
-            })
             .success(function () {
+                hideLoader();
                 labelInput.val('');
                 parentInput.val('');
                 rebuildTree($('#tree-children-depth').val(), $('#tree-children-root-node-id').val());
             })
             .error(function (resp) {
+                hideLoader();
                 alert('Error');
                 console.error(resp);
             });
@@ -52,13 +51,12 @@ $(function () {
         }
         showLoader();
         $.post('/node/update', {'node_id': id, 'label': label, 'parent_id': parentId})
-            .finish(function () {
-                hideLoader();
-            })
             .success(function () {
+                hideLoader();
                 rebuildTree($('#tree-children-depth').val(), $('#tree-children-root-node-id').val());
             })
             .error(function (resp) {
+                hideLoader();
                 alert('Error');
                 console.error(resp);
             });
@@ -82,13 +80,12 @@ $(function () {
 
         showLoader();
         $.post('/node/delete', {'node_id': id})
-            .finish(function () {
-                hideLoader();
-            })
             .success(function (resp) {
+                hideLoader();
                 node.remove();
             })
             .error(function (resp) {
+                hideLoader();
                 alert('Error');
                 console.log(resp);
             })
@@ -124,13 +121,12 @@ $(function () {
         showLoader();
 
         $.post('/generate', {depth: depth, size: size})
-            .finish(function () {
-                hideLoader();
-            })
             .success(function () {
+                hideLoader();
                 rebuildTree(1);
             })
             .error(function (resp) {
+                hideLoader();
                 alert('Error');
                 console.error(resp);
             });
