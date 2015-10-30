@@ -163,7 +163,7 @@ $(function () {
                 depth = n['depth'];
 
             tree += '<div style="padding:5px;margin:5px;border:1px solid #ccc;">';
-            tree += label + ' (id: ' + id + ', depth: ' + depth + ')';
+            tree += label + ' (id: ' + id + ', depth: ' + depth + ', children: ' + nodes[node]['children'].length + ')';
 
             // delete form
             tree += '<form class="delete-form" method="POST" action="/node/delete" style="float:right">' +
@@ -173,11 +173,26 @@ $(function () {
 
             // recursive children
             if (nodes[node]['children'].length > 0) {
-                tree += buildTree(nodes[node]['children'])
+                tree += '&nbsp;<a href="#" class="expand" style="text-decoration:none">+</a>';
+                tree += '<div class="children" style="display:none">';
+                tree += buildTree(nodes[node]['children']);
+                tree += '</div>';
             }
             tree += '</div>';
         }
 
         return tree;
     }
+
+    $('#tree').on('click', '.expand', function(e){
+        e.preventDefault();
+        var link = $(this);
+        if (link.text() == '+') {
+            link.text('-');
+            link.siblings('.children').show();
+        } else {
+            link.siblings('.children').hide();
+            link.text('+');
+        }
+    });
 });

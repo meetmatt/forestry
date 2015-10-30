@@ -60,7 +60,7 @@ class UserInterface
                 <b>Build tree:</b>
                 <form method="GET" action="/tree/children" id="tree-children-form">
                     <label for="tree-children-depth">
-                        Depth: <input type="text" name="depth" id="tree-children-depth">
+                        Depth: <input type="text" name="depth" id="tree-children-depth" value="10">
                     </label>
                     <label for="tree-children-root-node-id">
                         Root node ID: <input type="text" name="root_node_id" id="tree-children-root-node-id">
