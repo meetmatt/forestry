@@ -4,6 +4,7 @@ namespace Forestry\Tree\Controller;
 
 use Forestry\Framework\Http\Request;
 use Forestry\Framework\Http\Response;
+use Forestry\Tree\Model\Generator;
 use Forestry\Tree\Model\NodeBuilder;
 use Forestry\Tree\Model\Tree;
 
@@ -11,19 +12,35 @@ class Api
 {
     /** @var Tree */
     private $tree;
+    /** @var Generator */
+    private $generator;
 
     /**
      * @param Tree $tree
+     * @param Generator $generator
      */
-    public function __construct(Tree $tree)
+    public function __construct(Tree $tree, Generator $generator)
     {
         $this->tree = $tree;
+        $this->generator = $generator;
     }
 
     public function createSchema()
     {
         $this->tree->createTable();
     }
+
+    /**
+     * @param Request $request
+     */
+    public function generate(Request $request)
+    {
+        $depth = (int)$request->request->offsetGet('depth', Generator::MAX_GENERATE_DEPTH);
+        $size = (int)$request->request->offsetGet('size', Generator::MAX_GENERATE_SIZE);
+
+        $this->generator->generateTree($depth, $size);
+    }
+
 
     /**
      * @param Request $request

@@ -7,6 +7,7 @@ use Forestry\Framework\Config\Config;
 use Forestry\Framework\Database\Postgres;
 use Forestry\Tree\Controller\Api;
 use Forestry\Tree\Controller\UserInterface;
+use Forestry\Tree\Model\Generator;
 use Forestry\Tree\Model\Tree;
 
 /**
@@ -30,12 +31,20 @@ class Application extends HttpApplication
      */
     private function registerRoutes()
     {
+        // User Interface
         $this->router->get('/', 'ui:index');
+
+        // Schema API
         $this->router->post('/schema', 'api:createSchema');
+        $this->router->post('/generate', 'api:generate');
+
+        // Tree API
         $this->router->get('/tree/children', 'api:getChildrenTree');
         $this->router->get('/tree/parents', 'api:getParentTree');
         $this->router->get('/tree/contains', 'api:getContainingTree');
         $this->router->get('/tree/search', 'api:findNode');
+
+        // Node API
         $this->router->get('/node', 'api:getNode');
         $this->router->post('/node', 'api:createNode');
         $this->router->post('/node/delete', 'api:deleteNode');
@@ -55,8 +64,15 @@ class Application extends HttpApplication
             return new Tree($this->container->get('db'));
         });
 
+        $this->container->set('generator', function () {
+            return new Generator($this->container->get('tree'));
+        });
+
         $this->container->set('api', function () {
-            return new Api($this->container->get('tree'));
+            return new Api(
+                $this->container->get('tree'),
+                $this->container->get('generator')
+            );
         });
 
         $this->container->set('ui', function () {

@@ -26,46 +26,32 @@ class UserInterface
                     <title>Forestry</title>
                 </head>
                 <body>
-                ' . $this->getCreateForm() . '
-                <hr>
                 ' . $this->getControls() . '
-                <hr>
                 <div id="tree"></div>
                 <script src="/assets/js/jquery.min.js"></script>
                 <script>' . $this->getAppJs() . '</script>
                 </body>
             </html>';
     }
-
-    /**
-     * @return string
-     */
-    private function getCreateForm()
-    {
-        return '
-            <div>
-                <b>Create node:</b>
-                <form method="POST" action="/node" id="create-node-form">
-                    <label for="create-node-label">
-                        Label:
-                        <input type="text" name="label" id="create-node-label">
-                    </label>
-                    <label for="create-node-parent-id">
-                        Parent ID:
-                        <input type="text" name="label" id="create-node-parent-id">
-                    </label>
-                    <input type="submit" value="Add" id="create-node-submit">
-                </form>
-            </div>
-        ';
-    }
-
     private function getControls()
     {
         return '
             <div>
                 <form method="POST" action="/schema" id="create-schema-form">
                     <input type="submit" value="Create schema" id="create-schema-submit">
+                </form>
+            </div>
+            <hr>
+            <div>
+                <b>Generate nodes:</b>
+                <form method="POST" action="/generate" id="generate-form">
+                    <label for="generate-depth">
+                        Depth: <input type="text" name="depth" id="generate-depth">
+                    </label>
+                    <label for="generate-size">
+                        Size: <input type="text" name="size" id="generate-size">
+                    </label>
+                    <input type="submit" value="Generate" id="generate-submit">
                 </form>
             </div>
             <hr>
@@ -79,6 +65,21 @@ class UserInterface
                         Root node ID: <input type="text" name="root_node_id" id="tree-children-root-node-id">
                     </label>
                     <input type="submit" value="Build tree" id="tree-children-submit">
+                </form>
+            </div>
+            <hr>
+            <div>
+                <b>Create node:</b>
+                <form method="POST" action="/node" id="create-node-form">
+                    <label for="create-node-label">
+                        Label:
+                        <input type="text" name="label" id="create-node-label">
+                    </label>
+                    <label for="create-node-parent-id">
+                        Parent ID:
+                        <input type="text" name="label" id="create-node-parent-id">
+                    </label>
+                    <input type="submit" value="Add" id="create-node-submit">
                 </form>
             </div>
             <hr>

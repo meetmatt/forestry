@@ -69,6 +69,21 @@ $(function(){
         );
     });
 
+    $('#generate-form').submit(function(e){
+        e.preventDefault();
+        var depth = $('#generate-depth').val(),
+            size = $('#generate-size').val();
+
+        $.post('/generate', {depth:depth, size:size})
+            .success(function(){
+                rebuildTree(1);
+            })
+            .error(function(resp){
+                alert('Error');
+                console.error(resp);
+            });
+    });
+
     // get tree and build html
     function rebuildTree(depth, rootNodeId) {
         $.getJSON(
@@ -77,6 +92,7 @@ $(function(){
             function(resp){
                 if (typeof resp !== 'object' && typeof resp !== 'array') {
                     alert('Nothing to build');
+                    $('#tree').html('');
                     return false;
                 }
                 $('#tree').html(buildTree(resp));
