@@ -12,6 +12,8 @@ class Node
     private $label;
     /** @var int */
     private $depth;
+    /** @var Node[] */
+    private $children;
 
     /**
      * @return int
@@ -35,6 +37,20 @@ class Node
     public function getPath()
     {
         return $this->path;
+    }
+
+    /**
+     * @return int Returns 0 if node has not parents
+     */
+    public function getParentId()
+    {
+        $path = $this->path;
+        $pathLength = count($path);
+        if ($pathLength === 1) {
+            return 0;
+        }
+
+        return $path[$pathLength-2];
     }
 
     /**
@@ -75,5 +91,21 @@ class Node
     public function setDepth($depth)
     {
         $this->depth = $depth;
+    }
+
+    /**
+     * @param Node[] $nodes
+     */
+    public function setChildren($nodes)
+    {
+        $this->children = $nodes;
+    }
+
+    /**
+     * @return Node[]
+     */
+    public function getChildren()
+    {
+        return $this->children;
     }
 }

@@ -5,6 +5,8 @@ namespace Forestry\Tree;
 use Forestry\Framework\Application\HttpApplication;
 use Forestry\Framework\Config\Config;
 use Forestry\Framework\Database\Postgres;
+use Forestry\Tree\Controller\Api;
+use Forestry\Tree\Controller\UserInterface;
 use Forestry\Tree\Model\Tree;
 
 /**
@@ -29,9 +31,12 @@ class Application extends HttpApplication
     private function registerRoutes()
     {
         $this->router->post('/schema', 'api:createSchema');
-        $this->router->get('/flat', 'api:getFlat');
+        $this->router->get('/tree/children', 'api:getChildrenTree');
+        $this->router->get('/tree/parents', 'api:getParentTree');
+        $this->router->get('/tree/contains', 'api:getContainingTree');
         $this->router->get('/node', 'api:getNode');
         $this->router->post('/node', 'api:createNode');
+        $this->router->get('/node/search', 'api:findNode');
         $this->router->post('/node/delete', 'api:deleteNode');
         $this->router->post('/node/update', 'api:updateNode');
     }
@@ -51,6 +56,10 @@ class Application extends HttpApplication
 
         $this->container->set('api', function () {
             return new Api($this->container->get('tree'));
+        });
+
+        $this->container->set('ui', function () {
+            return new UserInterface();
         });
     }
 }

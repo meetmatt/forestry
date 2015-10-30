@@ -8,6 +8,7 @@ class NodeBuilder
     const PATH = 'path';
     const LABEL = 'label';
     const DEPTH = 'depth';
+    const CHILDREN = 'children';
 
     /**
      * @param array $array
@@ -42,12 +43,31 @@ class NodeBuilder
      */
     public static function toArray(Node $node)
     {
+        $children = self::getRecursiveChildren($node);
+
         return [
             self::ID => $node->getId(),
             self::LABEL => $node->getLabel(),
             self::PATH => self::joinPath($node->getPath()),
             self::DEPTH => $node->getDepth(),
+            self::CHILDREN => $children,
         ];
+    }
+
+    /**
+     * Converts tree of Node objects to nested array
+     *
+     * @param Node[] $nodes
+     * @return array
+     */
+    public static function treeToArray($nodes)
+    {
+        $tree = [];
+        foreach ($nodes as $rootNode) {
+            $tree[] = NodeBuilder::toArray($rootNode);
+        }
+
+        return $tree;
     }
 
     /**
@@ -72,5 +92,22 @@ class NodeBuilder
         $path = "{" . implode(',', $path) . "}";
 
         return $path;
+    }
+
+    /**
+     * @param Node $node
+     * @return Node[]
+     */
+    private static function getRecursiveChildren(Node $node)
+    {
+        $nodes = [];
+        $children = $node->getChildren();
+        if (count($children) > 0) {
+            foreach ($children as $child) {
+                $nodes[] = self::toArray($child);
+            }
+        }
+
+        return $nodes;
     }
 }

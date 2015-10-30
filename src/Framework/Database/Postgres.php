@@ -67,32 +67,6 @@ class Postgres
     /**
      * @param string $sql
      * @param array $args
-     * @return array|false
-     */
-    public function fetch($sql, array $args = [])
-    {
-        return $this->select($sql, $args);
-    }
-
-    /**
-     * @param $sql
-     * @param array $args
-     * @return mixed
-     */
-    public function fetchRow($sql, array $args = [])
-    {
-        $rows = $this->fetch($sql, $args);
-
-        if ($rows !== false) {
-            return $rows[0];
-        }
-
-        return false;
-    }
-
-    /**
-     * @param string $sql
-     * @param array $args
      * @return int|false Last inserted ID or false on failure
      */
     public function insert($sql, $args = [])

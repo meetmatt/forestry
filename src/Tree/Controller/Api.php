@@ -1,6 +1,6 @@
 <?php
 
-namespace Forestry\Tree;
+namespace Forestry\Tree\Controller;
 
 use Forestry\Framework\Http\Request;
 use Forestry\Framework\Http\Response;
@@ -31,26 +31,86 @@ class Api
      */
     public function getNode(Request $request)
     {
-        $id = (int)$request->query->offsetGet('id');
+        $id = (int)$request->query->offsetGet('node_id');
         $node = $this->tree->getNode($id);
 
         if ($node === false) {
             return new Response('Node not found', Response::HTTP_NOT_FOUND);
         }
 
-        return new Response(json_encode($node));
+        return new Response(json_encode(NodeBuilder::toArray($node)));
     }
 
     /**
      * @param Request $request
      * @return Response
      */
-    public function getFlat(Request $request)
+    public function getChildrenTree(Request $request)
     {
-        $maxDepth = (int)$request->query->offsetGet('max_depth', Tree::MAX_DEPTH);
-        $rootNodeId = (int)$request->query->offsetGet('root', Tree::ANY_ROOT);
+        $maxDepth = (int)$request->query->offsetGet('depth', Tree::MAX_DEPTH);
+        $rootNodeId = (int)$request->query->offsetGet('root_node_id', Tree::ANY_ROOT);
 
-        $tree = $this->tree->getFlat($maxDepth, $rootNodeId);
+        $nodes = $this->tree->getChildrenTree($maxDepth, $rootNodeId);
+        $tree = NodeBuilder::treeToArray($nodes);
+
+        return new Response(json_encode($tree));
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     */
+    public function getParentTree(Request $request)
+    {
+        $nodeId = (int)$request->query->offsetGet('node_id', Tree::MAX_DEPTH);
+
+        $node = $this->tree->getNode($nodeId);
+        if ($node === false) {
+            return new Response('Node not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $nodes = $this->tree->getParentTree($node);
+        $tree = NodeBuilder::treeToArray($nodes);
+
+        return new Response(json_encode($tree));
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     */
+    public function getContainingTree(Request $request)
+    {
+        $nodeId = (int)$request->query->offsetGet('node_id', Tree::MAX_DEPTH);
+
+        $node = $this->tree->getNode($nodeId);
+        if ($node === false) {
+            return new Response('Node not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $nodes = $this->tree->getContainingTree($node);
+        $tree = NodeBuilder::treeToArray($nodes);
+
+        return new Response(json_encode($tree));
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     */
+    public function findNode(Request $request)
+    {
+        if (!$request->query->offsetExists('query')) {
+            return new Response('query is required', Response::HTTP_BAD_REQUEST);
+        }
+
+        if (strlen($query = trim($request->query->offsetGet('query'))) === 0) {
+            return new Response('query must not be empty', Response::HTTP_BAD_REQUEST);
+        }
+
+        $nodes = $this->tree->findNode($query);
+        $trees = $this->tree->getAllParentTrees($nodes);
+        $tree = NodeBuilder::treeToArray($trees);
 
         return new Response(json_encode($tree));
     }
