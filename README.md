@@ -1,3 +1,3 @@
-# Forrestry
+# Forestry
 
-Forestry is a PHP application for building and traversing tree (unidirected acyclic graph) structures
+Forestry is a PHP application for building and traversing trees: unidirected acyclic graph structures

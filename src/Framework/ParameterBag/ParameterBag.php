@@ -2,7 +2,7 @@
 
 namespace Forestry\Framework\ParameterBag;
 
-class ParameterBag implements ParameterBagInterface
+class ParameterBag
 {
     /**
      * @var array
