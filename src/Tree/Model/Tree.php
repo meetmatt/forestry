@@ -320,37 +320,48 @@ class Tree
      *
      * @param int $id
      * @param string $label
-     * @param $parentNodeId
+     * @param int $parentNodeId
      * @return int|bool Number of updated rows or false on failure
      */
-    public function updateNode($id, $label, $parentNodeId)
+    public function updateNode($id, $label, $parentNodeId = null)
     {
         $id = (int)$id;
         $this->db->begin();
 
-        // get parent path
-        $sql = "SELECT path, array_length(path,1) as depth
-                FROM hierarchy
-                WHERE node_id = :parent_node_id";
-        $nodes = $this->db->select($sql, ['parent_node_id' => (int)$parentNodeId]);
-        if (count($nodes) < 1) {
-            // parent not found
-            $this->db->rollback();
-            return false;
+        $path = [];
+        if (isset($parentNodeId) && !is_null($parentNodeId)) {
+            // get parent path
+            $sql = "SELECT path, array_length(path,1) AS depth
+                    FROM hierarchy
+                    WHERE node_id = :parent_node_id";
+            $nodes = $this->db->select($sql, ['parent_node_id' => (int)$parentNodeId]);
+            if (count($nodes) < 1) {
+                // parent not found
+                $this->db->rollback();
+                return false;
+            }
+            $parentNode = $nodes[0];
+            $path = NodeBuilder::splitPath($parentNode['path']);
+            $parentDepth = $parentNode['depth'];
+        } else {
+            // move to root
+            $parentDepth = 0;
         }
-        $parentNode = $nodes[0];
-        $path = NodeBuilder::splitPath($parentNode['path']);
 
         $node = $this->getNode($id);
         if ($node !== false) {
-            // update current and all child nodes
+            $sql = "UPDATE hierarchy
+                    SET label = :lbl
+                    WHERE node_id = :id";
+            $this->db->update($sql, ['lbl' => $label, 'id' => $node->getId()]);
+
+            // update current and all child nodes path
             $sql = sprintf("UPDATE hierarchy
-                            SET path = :path || path[%d:array_length(path, 1)],
-                                label = :label
-                            WHERE path && ARRAY[%d]", $parentNode['depth'], $id);
+                            SET path = :path || path[%d:array_length(path, 1)]
+                            WHERE path && ARRAY[%d]", $parentDepth, $id);
 
             $path = NodeBuilder::joinPath($path);
-            $rowsUpdated = $this->db->update($sql, ['path' => $path, 'label' => $label]);
+            $rowsUpdated = $this->db->update($sql, ['path' => $path]);
             if ($rowsUpdated !== false) {
                 $this->db->commit();
 

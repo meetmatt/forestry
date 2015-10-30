@@ -185,21 +185,17 @@ class Api
      */
     public function updateNode(Request $request)
     {
-        if (!$request->request->offsetExists('id')) {
-            return new Response('id is required', Response::HTTP_BAD_REQUEST);
+        if (!$request->request->offsetExists('node_id')) {
+            return new Response('node_id is required', Response::HTTP_BAD_REQUEST);
         }
 
         if (!$request->request->offsetExists('label')) {
             return new Response('label is required', Response::HTTP_BAD_REQUEST);
         }
 
-        if (!$request->request->offsetExists('parent_id')) {
-            return new Response('parent_id is required', Response::HTTP_BAD_REQUEST);
-        }
-
-        $nodeId = (int)$request->request->offsetGet('id');
+        $nodeId = (int)$request->request->offsetGet('node_id');
         $label = $request->request->offsetGet('label');
-        $parentId = (int)$request->request->offsetGet('parent_id');
+        $parentId = $request->request->offsetGet('parent_id', null);
 
         if (($rowsUpdated = $this->tree->updateNode($nodeId, $label, $parentId)) !== false) {
             $node = $this->tree->getNode($nodeId);

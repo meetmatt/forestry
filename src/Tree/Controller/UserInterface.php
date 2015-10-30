@@ -84,6 +84,25 @@ class UserInterface
             </div>
             <hr>
             <div>
+                <b>Update node:</b>
+                <form method="POST" action="/node/update" id="update-node-form">
+                    <label for="update-node-id">
+                        ID:
+                        <input type="text" name="label" id="update-node-id">
+                    </label>
+                    <label for="update-node-label">
+                        Label:
+                        <input type="text" name="label" id="update-node-label">
+                    </label>
+                    <label for="update-node-parent-id">
+                        Parent ID:
+                        <input type="text" name="label" id="update-node-parent-id">
+                    </label>
+                    <input type="submit" value="Update" id="update-node-submit">
+                </form>
+            </div>
+            <hr>
+            <div>
                 <b>Search:</b>
                 <form method="GET" action="/node/search" id="node-search-form">
                     <label for="node-search-query">

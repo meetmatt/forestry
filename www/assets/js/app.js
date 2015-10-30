@@ -16,7 +16,31 @@ $(function(){
             .success(function(){
                 labelInput.val('');
                 parentInput.val('');
-                rebuildTree();
+                rebuildTree($('#tree-children-depth').val(), $('#tree-children-root-node-id').val());
+            })
+            .error(function(resp){
+                alert('Error');
+                console.error(resp);
+            });
+    });
+
+    // update node
+    $('#update-node-form').submit(function(e){
+        e.preventDefault();
+        var idInput = $('#update-node-id'),
+            labelInput = $('#update-node-label'),
+            parentInput = $('#update-node-parent-id'),
+            id = idInput.val(),
+            label = labelInput.val(),
+            parentId = parentInput.val();
+
+        if (label.length === 0) {
+            return false;
+        }
+
+        $.post('/node/update', {'node_id':id, 'label': label, 'parent_id':parentId})
+            .success(function(){
+                rebuildTree($('#tree-children-depth').val(), $('#tree-children-root-node-id').val());
             })
             .error(function(resp){
                 alert('Error');
