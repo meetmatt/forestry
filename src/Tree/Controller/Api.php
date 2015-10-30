@@ -38,7 +38,11 @@ class Api
             return new Response('Node not found', Response::HTTP_NOT_FOUND);
         }
 
-        return new Response(json_encode(NodeBuilder::toArray($node)));
+        return new Response(
+            json_encode(NodeBuilder::toArray($node)),
+            Response::HTTP_OK,
+            Response::CONTENT_TYPE_JSON
+        );
     }
 
     /**
@@ -53,7 +57,11 @@ class Api
         $nodes = $this->tree->getChildrenTree($maxDepth, $rootNodeId);
         $tree = NodeBuilder::treeToArray($nodes);
 
-        return new Response(json_encode($tree));
+        return new Response(
+            json_encode($tree),
+            Response::HTTP_OK,
+            Response::CONTENT_TYPE_JSON
+        );
     }
 
     /**
@@ -72,7 +80,11 @@ class Api
         $nodes = $this->tree->getParentTree($node);
         $tree = NodeBuilder::treeToArray($nodes);
 
-        return new Response(json_encode($tree));
+        return new Response(
+            json_encode($tree),
+            Response::HTTP_OK,
+            Response::CONTENT_TYPE_JSON
+        );
     }
 
     /**
@@ -91,7 +103,11 @@ class Api
         $nodes = $this->tree->getContainingTree($node);
         $tree = NodeBuilder::treeToArray($nodes);
 
-        return new Response(json_encode($tree));
+        return new Response(
+            json_encode($tree),
+            Response::HTTP_OK,
+            Response::CONTENT_TYPE_JSON
+        );
     }
 
     /**
@@ -112,7 +128,11 @@ class Api
         $trees = $this->tree->getAllParentTrees($nodes);
         $tree = NodeBuilder::treeToArray($trees);
 
-        return new Response(json_encode($tree));
+        return new Response(
+            json_encode($tree),
+            Response::HTTP_OK,
+            Response::CONTENT_TYPE_JSON
+        );
     }
 
     /**
@@ -129,10 +149,13 @@ class Api
         $label = $request->request->offsetGet('label');
         $parentId = $request->request->offsetGet('parent_id');
 
-        if ($id = $this->tree->createNode($label, $parentId)) {
-            $node = $this->tree->getNode($id);
+        if (($node = $this->tree->createNode($label, $parentId)) !== false) {
 
-            return new Response(json_encode(NodeBuilder::toArray($node)), Response::HTTP_CREATED);
+            return new Response(
+                json_encode(NodeBuilder::toArray($node)),
+                Response::HTTP_CREATED,
+                Response::CONTENT_TYPE_JSON
+            );
         }
 
         return new Response(null, Response::HTTP_SERVER_ERROR);
@@ -164,7 +187,11 @@ class Api
         if (($rowsUpdated = $this->tree->updateNode($nodeId, $label, $parentId)) !== false) {
             $node = $this->tree->getNode($nodeId);
 
-            return new Response(json_encode(NodeBuilder::toArray($node)), Response::HTTP_OK);
+            return new Response(
+                json_encode(NodeBuilder::toArray($node)),
+                Response::HTTP_OK,
+                Response::CONTENT_TYPE_JSON
+            );
         }
 
         return new Response(null, Response::HTTP_SERVER_ERROR);
@@ -176,12 +203,17 @@ class Api
      */
     public function deleteNode(Request $request)
     {
-        if (!$request->query->offsetExists('id')) {
-            return new Response(null, Response::HTTP_NOT_FOUND);
+        if (!$request->request->offsetExists('node_id')) {
+            return new Response('node_id is required', Response::HTTP_BAD_REQUEST);
         }
 
-        $nodeId = (int)$request->request->offsetGet('id');
-        if (($rows = $this->tree->deleteNode($nodeId)) > 0) {
+        $nodeId = (int)$request->request->offsetGet('node_id');
+        $node = $this->tree->getNode($nodeId);
+        if ($node === false) {
+            return new Response('Node not found', Response::HTTP_NOT_FOUND);
+        }
+
+        if ($this->tree->deleteNode($node)) {
             return new Response(null, Response::HTTP_NO_CONTENT);
         }
 

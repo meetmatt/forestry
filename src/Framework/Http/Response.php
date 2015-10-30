@@ -11,20 +11,26 @@ class Response
     const HTTP_NOT_FOUND = 404;
     const HTTP_SERVER_ERROR = 500;
 
+    const CONTENT_TYPE_TEXT_HTML = 'text/html';
+    const CONTENT_TYPE_JSON = 'application/json';
+
     /** @var string */
     private $content;
-
     /** @var int */
     private $status;
+    /** @var string */
+    private $contentType;
 
     /**
      * @param string $content
      * @param int $status
+     * @param string $contentType
      */
-    public function __construct($content, $status = self::HTTP_OK)
+    public function __construct($content, $status = self::HTTP_OK, $contentType = self::CONTENT_TYPE_TEXT_HTML)
     {
         $this->content = $content;
         $this->status = $status;
+        $this->contentType = $contentType;
     }
 
     public function send()
@@ -45,6 +51,8 @@ class Response
             default:
                 header("HTTP/1.1 200 Found");
         }
+
+        header('Content-Type: ' . $this->contentType);
     }
 
     // TODO: implement buffer handling

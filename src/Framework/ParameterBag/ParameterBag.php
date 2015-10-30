@@ -34,7 +34,12 @@ class ParameterBag
     public function offsetGet($key, $default = null)
     {
         if ($this->offsetExists($key)) {
-            return $this->params[$key];
+            $param = $this->params[$key];
+            if (is_string($param) && strlen($param) === 0) {
+                return $default;
+            }
+
+            return $param;
         }
 
         if (isset($default)) {

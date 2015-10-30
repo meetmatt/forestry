@@ -30,13 +30,14 @@ class Application extends HttpApplication
      */
     private function registerRoutes()
     {
+        $this->router->get('/', 'ui:index');
         $this->router->post('/schema', 'api:createSchema');
         $this->router->get('/tree/children', 'api:getChildrenTree');
         $this->router->get('/tree/parents', 'api:getParentTree');
         $this->router->get('/tree/contains', 'api:getContainingTree');
+        $this->router->get('/tree/search', 'api:findNode');
         $this->router->get('/node', 'api:getNode');
         $this->router->post('/node', 'api:createNode');
-        $this->router->get('/node/search', 'api:findNode');
         $this->router->post('/node/delete', 'api:deleteNode');
         $this->router->post('/node/update', 'api:updateNode');
     }

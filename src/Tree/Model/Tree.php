@@ -365,14 +365,14 @@ class Tree
     /**
      * Remove a node with all child nodes
      *
-     * @param int $nodeId
+     * @param Node $node
      * @return false|\PDOStatement
      */
-    public function deleteNode($nodeId)
+    public function deleteNode(Node $node)
     {
-        $nodeId = (int)$nodeId;
-
+        $nodeId = $node->getId();
         $sql = sprintf("DELETE FROM hierarchy WHERE path && ARRAY[%d]", $nodeId);
+
         return $this->db->delete($sql);
     }
 
