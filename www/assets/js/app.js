@@ -1,7 +1,15 @@
-$(function(){
+$(function () {
+
+    function showLoader() {
+        $('#loader').show();
+    }
+
+    function hideLoader() {
+        $('#loader').hide();
+    }
 
     // create node
-    $('#create-node-form').submit(function(e){
+    $('#create-node-form').submit(function (e) {
         e.preventDefault();
         var labelInput = $('#create-node-label'),
             parentInput = $('#create-node-parent-id'),
@@ -12,20 +20,25 @@ $(function(){
             return false;
         }
 
-        $.post('/node', {'label': label, 'parent_id':parentId})
-            .success(function(){
+        showLoader();
+
+        $.post('/node', {'label': label, 'parent_id': parentId})
+            .finish(function () {
+                hideLoader();
+            })
+            .success(function () {
                 labelInput.val('');
                 parentInput.val('');
                 rebuildTree($('#tree-children-depth').val(), $('#tree-children-root-node-id').val());
             })
-            .error(function(resp){
+            .error(function (resp) {
                 alert('Error');
                 console.error(resp);
             });
     });
 
     // update node
-    $('#update-node-form').submit(function(e){
+    $('#update-node-form').submit(function (e) {
         e.preventDefault();
         var idInput = $('#update-node-id'),
             labelInput = $('#update-node-label'),
@@ -37,19 +50,22 @@ $(function(){
         if (label.length === 0) {
             return false;
         }
-
-        $.post('/node/update', {'node_id':id, 'label': label, 'parent_id':parentId})
-            .success(function(){
+        showLoader();
+        $.post('/node/update', {'node_id': id, 'label': label, 'parent_id': parentId})
+            .finish(function () {
+                hideLoader();
+            })
+            .success(function () {
                 rebuildTree($('#tree-children-depth').val(), $('#tree-children-root-node-id').val());
             })
-            .error(function(resp){
+            .error(function (resp) {
                 alert('Error');
                 console.error(resp);
             });
     });
 
     // build tree
-    $('#tree-children-form').submit(function(e){
+    $('#tree-children-form').submit(function (e) {
         e.preventDefault();
         var depth = $('#tree-children-depth').val(),
             rootNodeId = $('#tree-children-root-node-id').val();
@@ -58,32 +74,39 @@ $(function(){
     });
 
     // delete node and all children
-    $('#tree').on('submit', '.delete-form', function(e){
+    $('#tree').on('submit', '.delete-form', function (e) {
         e.preventDefault();
         var form = $(this),
             node = form.parent(),
             id = form.find('input[type="hidden"]').val();
-        $.post('/node/delete', {'node_id':id})
-            .success(function(resp){
+
+        showLoader();
+        $.post('/node/delete', {'node_id': id})
+            .finish(function () {
+                hideLoader();
+            })
+            .success(function (resp) {
                 node.remove();
             })
-            .error(function(resp){
+            .error(function (resp) {
                 alert('Error');
                 console.log(resp);
             })
     });
 
     // find nodes
-    $('#node-search-form').submit(function(e){
+    $('#node-search-form').submit(function (e) {
         e.preventDefault();
         var query = $('#node-search-query').val().trim();
         if (query.length === 0) {
             return false;
         }
+        showLoader();
         $.getJSON(
             '/tree/search',
-            {query:query},
-            function(resp){
+            {query: query},
+            function (resp) {
+                hideLoader();
                 if (typeof resp !== 'object' && typeof resp !== 'array') {
                     $('#tree').html('');
                     return false;
@@ -93,16 +116,21 @@ $(function(){
         );
     });
 
-    $('#generate-form').submit(function(e){
+    $('#generate-form').submit(function (e) {
         e.preventDefault();
         var depth = $('#generate-depth').val(),
             size = $('#generate-size').val();
 
-        $.post('/generate', {depth:depth, size:size})
-            .success(function(){
+        showLoader();
+
+        $.post('/generate', {depth: depth, size: size})
+            .finish(function () {
+                hideLoader();
+            })
+            .success(function () {
                 rebuildTree(1);
             })
-            .error(function(resp){
+            .error(function (resp) {
                 alert('Error');
                 console.error(resp);
             });
@@ -110,10 +138,12 @@ $(function(){
 
     // get tree and build html
     function rebuildTree(depth, rootNodeId) {
+        showLoader();
         $.getJSON(
             '/tree/children',
-            {'depth':depth, 'root_node_id':rootNodeId},
-            function(resp){
+            {'depth': depth, 'root_node_id': rootNodeId},
+            function (resp) {
+                hideLoader();
                 if (typeof resp !== 'object' && typeof resp !== 'array') {
                     alert('Nothing to build');
                     $('#tree').html('');
@@ -136,14 +166,14 @@ $(function(){
                 label = n['label'],
                 depth = n['depth'];
 
-            tree += '<div style="padding:5px;margin:5px;border:1px solid #ccc; display:' + (depth > 1 ? 'hidden' : 'block') +'">';
+            tree += '<div style="padding:5px;margin:5px;border:1px solid #ccc;">';
             tree += label + ' (id: ' + id + ', depth: ' + depth + ')';
 
             // delete form
             tree += '<form class="delete-form" method="POST" action="/node/delete" style="float:right">' +
-                        '<input type="hidden" name="node_id" value="' + id + '">' +
-                        '<input type="submit" value="Delete">' +
-                    '</form>';
+            '<input type="hidden" name="node_id" value="' + id + '">' +
+            '<input type="submit" value="Delete">' +
+            '</form>';
 
             // recursive children
             if (nodes[node]['children'].length > 0) {

@@ -27,6 +27,7 @@ class UserInterface
                 </head>
                 <body>
                 ' . $this->getControls() . '
+                <div id="loader" style="display:none">Loading....</div>
                 <div id="tree"></div>
                 <script src="/assets/js/jquery.min.js"></script>
                 <script>' . $this->getAppJs() . '</script>
