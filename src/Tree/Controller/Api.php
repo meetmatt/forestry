@@ -68,7 +68,7 @@ class Api
      */
     public function getChildrenTree(Request $request)
     {
-        $maxDepth = (int)$request->query->offsetGet('depth', Tree::MAX_DEPTH);
+        $maxDepth = (int)$request->query->offsetGet('depth', Tree::DEFAULT_DEPTH);
         $rootNodeId = (int)$request->query->offsetGet('root_node_id', Tree::ANY_ROOT);
 
         $nodes = $this->tree->getChildrenTree($maxDepth, $rootNodeId);
