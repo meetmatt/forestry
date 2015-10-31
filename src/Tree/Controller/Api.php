@@ -87,7 +87,7 @@ class Api
      */
     public function getParentTree(Request $request)
     {
-        $nodeId = (int)$request->query->offsetGet('node_id', Tree::MAX_DEPTH);
+        $nodeId = (int)$request->query->offsetGet('node_id');
 
         $node = $this->tree->getNode($nodeId);
         if ($node === false) {
@@ -110,7 +110,7 @@ class Api
      */
     public function getContainingTree(Request $request)
     {
-        $nodeId = (int)$request->query->offsetGet('node_id', Tree::MAX_DEPTH);
+        $nodeId = (int)$request->query->offsetGet('node_id');
 
         $node = $this->tree->getNode($nodeId);
         if ($node === false) {
