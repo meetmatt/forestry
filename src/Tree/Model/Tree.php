@@ -16,6 +16,7 @@ class Tree
 {
     const MAX_DEPTH = 100;
     const ANY_ROOT = -1;
+    const DEFAULT_DEPTH = 10;
 
     /** @var Postgres */
     private $db;
