@@ -187,12 +187,26 @@ $(function () {
     $('#tree').on('click', '.expand', function(e){
         e.preventDefault();
         var link = $(this);
-        if (link.text() == '+') {
+        if (link.text() === '+') {
             link.text('-');
             link.siblings('.children').show();
         } else {
             link.siblings('.children').hide();
             link.text('+');
+        }
+    });
+
+    $('#expand-all').click(function(e){
+        e.preventDefault();
+        var btn = $(this);
+        if (btn.text() === 'Expand all') {
+            $('.expand').text('-');
+            $('.children').show();
+            btn.text('Collapse all');
+        } else {
+            $('.expand').text('+');
+            $('.children').hide();
+            btn.text('Expand all');
         }
     });
 });

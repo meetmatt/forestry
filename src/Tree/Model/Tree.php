@@ -35,9 +35,18 @@ class Tree
      * @param int $rootNodeId
      * @return array
      */
-    public function getChildrenTree($depth, $rootNodeId)
+    public function getChildrenTree($depth, $rootNodeId = self::ANY_ROOT)
     {
-        $sql = $this->getChildrenSelectQuery($depth, $rootNodeId);
+        if (!is_null($rootNodeId) && $rootNodeId !== self::ANY_ROOT) {
+            $rootNode = $this->getNode($rootNodeId);
+            if ($rootNode === false) {
+                return [];
+            }
+            $sql = $this->getChildrenSelectQuery($depth, $rootNode);
+        } else {
+            $sql = $this->getChildrenSelectQuery($depth);
+        }
+
         $result = $this->db->select($sql);
 
         $nodes = [];
@@ -118,22 +127,22 @@ class Tree
      * @param int $parentId
      * @return array
      */
-    private function buildTree(array &$nodes, $parentId = 0) {
-
+    private function buildTree(array &$nodes, $parentId = 0)
+    {
         $branch = [];
 
-        foreach ($nodes as &$node) {
+        foreach ($nodes as $i => $node) {
             $id = $node->getId();
             $nodeParentId = $node->getParentId();
 
-            if ($nodeParentId === $parentId) {
+            if ($nodeParentId === $parentId || $parentId === 0) {
                 $children = $this->buildTree($nodes, $id);
                 if ($children) {
                     $node->setChildren($children);
                 }
 
                 $branch[$id] = $node;
-                unset($node);
+                unset($nodes[$i]);
             }
         }
 
@@ -150,7 +159,7 @@ class Tree
         $sql = "SELECT node_id, label, path, ARRAY_LENGTH(path, 1) AS depth
                 FROM hierarchy
                 WHERE ARRAY[node_id] && ARRAY[%s]
-                ORDER BY path ASC";
+                ORDER BY PATH ASC";
 
         $sql = sprintf($sql, implode(',', $path));
 
@@ -182,18 +191,30 @@ class Tree
 
     /**
      * @param int $depth
-     * @param int $rootNodeId
+     * @param Node $rootNode
      * @return string
      */
-    private function getChildrenSelectQuery($depth = self::MAX_DEPTH, $rootNodeId = self::ANY_ROOT)
+    private function getChildrenSelectQuery($depth = self::MAX_DEPTH, Node $rootNode = null)
     {
         $depth = (int)$depth;
-        $rootNodeId = (int)$rootNodeId;
+
+        $rootNodeCondition = '';
+        if (isset($rootNode) && !is_null($rootNode)) {
+            $rootNodeCondition = sprintf(
+                'AND (
+                    path && ARRAY[%1$d]
+                    AND ARRAY_LENGTH(path, 1) > %2$d
+                )
+                OR node_id = %1$d',
+                $rootNode->getId(),
+                $rootNode->getDepth()
+            );
+        }
 
         $sql = "SELECT node_id, label, path, ARRAY_LENGTH(path, 1) AS depth
                 FROM hierarchy
                 WHERE ARRAY_LENGTH(path, 1) <= $depth
-                " . ($rootNodeId !== self::ANY_ROOT ? "AND path && ARRAY[$rootNodeId]" : '') . "
+                $rootNodeCondition
                 ORDER BY path ASC";
 
         return $sql;
@@ -357,8 +378,8 @@ class Tree
 
             // update current and all child nodes path
             $sql = sprintf("UPDATE hierarchy
-                            SET path = :path || path[%d:array_length(path, 1)]
-                            WHERE path && ARRAY[%d]", $parentDepth, $id);
+                            SET path = :path || path[%d:array_length(PATH, 1)]
+                            WHERE PATH && ARRAY[%d]", $parentDepth, $id);
 
             $path = NodeBuilder::joinPath($path);
             $rowsUpdated = $this->db->update($sql, ['path' => $path]);
@@ -393,9 +414,9 @@ class Tree
     public function createTable()
     {
         $sql = 'CREATE TABLE IF NOT EXISTS hierarchy (
-            node_id serial PRIMARY KEY,
-            path integer[] NOT NULL,
-            label varchar(1000) NOT NULL
+            node_id SERIAL PRIMARY KEY,
+            path INTEGER[] NOT NULL,
+            label VARCHAR(1000) NOT NULL
         )';
 
         $this->db->exec($sql);

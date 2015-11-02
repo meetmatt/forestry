@@ -113,6 +113,8 @@ class UserInterface
                 </form>
             </div>
             <hr>
+            <button type="submit" id="expand-all">Expand all</button>
+            <hr>
         ';
     }
 
